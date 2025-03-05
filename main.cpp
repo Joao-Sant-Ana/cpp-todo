@@ -11,6 +11,12 @@ enum class TaskStatus {
     Done
 };
 
+enum class TaskPriority {
+    Low,
+    Medium,
+    High
+};
+
 class Task {
     public:
         void changeStatus(const TaskStatus newStatus) {
@@ -23,6 +29,10 @@ class Task {
 
         void setDesc(string desc) {
             this->desc = move(desc);
+        }
+
+        void changePriority(const TaskPriority task_priority) {
+            this->priority = task_priority;
         }
 
         //[[nodiscard]] Means that the value returned can't be ignored.
@@ -51,6 +61,7 @@ class Task {
         string name;
         string desc;
         TaskStatus status = TaskStatus::Todo;
+        TaskPriority priority = TaskPriority::Medium;
 
 };
 
@@ -72,22 +83,25 @@ class TaskManager {
         void changeStatus(const int index, const TaskStatus newStatus) {
             this->taskList[index].changeStatus(newStatus);
         }
+
+        void changePriority(const int index, const TaskPriority task_priority) {
+            this->taskList[index].changePriority(task_priority);
+        }
+
     private:
         vector<Task> taskList;
-
 
         static Task createTask(string name, string desc) {
             Task task;
             task.setDesc(move(desc));
             task.setName(move(name));
-            task.changeStatus(TaskStatus::Todo);
             return task;
         }
 };
 
 int main() {
     TaskManager taskManager;
-    string command, name, desc, status;
+    string command, name, desc, status, priority;
     int idx;
     cout << "Create a task by writing the create command and after that inform it's name and description. To show the tasks write show. To quit the program write exit." << endl;
 
@@ -122,6 +136,19 @@ int main() {
                 taskManager.changeStatus(idx, TaskStatus::Todo);
             } else {
                 cout << "Unknown status" << endl;
+            }
+        }   else if (command == "priority") {
+            cin.ignore();
+            cin>>idx;
+            getline(cin, priority);
+            if (priority == "Low") {
+                taskManager.changePriority(idx, TaskPriority::Low);
+            } else if (priority == "Medium") {
+                taskManager.changePriority(idx, TaskPriority::Medium);
+            } else if (priority == "High") {
+                taskManager.changePriority(idx, TaskPriority::High);
+            } else {
+                cout << "Unknown priority" << endl;
             }
         } else {
             cout << "Unknown command" << endl;
