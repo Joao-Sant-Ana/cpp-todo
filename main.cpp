@@ -4,6 +4,7 @@
 
 using namespace std;
 
+// Types for status
 enum class TaskStatus {
     Todo,
     Progress,
@@ -24,18 +25,18 @@ class Task {
             this->desc = move(desc);
         }
 
-        string getName() {
+        //[[nodiscard]] Means that the value returned can't be ignored.
+        [[nodiscard]] string getName() const {
             return this->name;
         }
 
-        string getDesc() {
+        // Const for encapsulation.
+        [[nodiscard]] string getDesc() const {
             return this->desc;
         }
 
-        string getStatus() {
-            status = this->status;
-
-            switch (status) {
+        [[nodiscard]] string getStatus() const {
+            switch (this->status) {
                 case TaskStatus::Done:
                     return "Done";
                 case TaskStatus::Progress:
@@ -60,7 +61,7 @@ class TaskManager {
             this->taskList.push_back(move(task));
         }
 
-        vector<Task>& getTasks() {
+        [[nodiscard]] vector<Task> getTasks() const {
             return this->taskList;
         }
 
@@ -68,6 +69,9 @@ class TaskManager {
             this->taskList.erase(this->taskList.begin() + index);
         }
 
+        void changeStatus(const int index, const TaskStatus newStatus) {
+            this->taskList[index].changeStatus(newStatus);
+        }
     private:
         vector<Task> taskList;
 
@@ -83,28 +87,44 @@ class TaskManager {
 
 int main() {
     TaskManager taskManager;
-    string command, name, desc;
-
+    string command, name, desc, status;
+    int idx;
     cout << "Create a task by writing the create command and after that inform it's name and description. To show the tasks write show. To quit the program write exit." << endl;
 
     while (true) {
         cin >> command;
+
         if (command == "exit") {
             break;
         }
 
         if (command == "show") {
-            cout << "Index   Name   Desc   Status";
+            cout << "Index   Name   Desc   Status" << endl;
             for (int i = 0; i < taskManager.getTasks().size(); i++) {
                 cout << "Task " << i << ": " << taskManager.getTasks()[i].getName() << "  " << taskManager.getTasks()[i].getDesc() << "  " << taskManager.getTasks()[i].getStatus() << endl;
             }
-        }
-
-        if (command == "create") {
+        } else if (command == "create") {
             cin.ignore();
             getline(cin, name);
             getline(cin, desc);
             taskManager.addTask(name, desc);
+            cout << "Task created" << endl;
+        } else if (command == "change") {
+            cin.ignore();
+            cin>>idx;
+            getline(cin, status);
+
+            if (status == "done") {
+                taskManager.changeStatus(idx, TaskStatus::Done);
+            } else if (status == "progress") {
+                taskManager.changeStatus(idx, TaskStatus::Progress);
+            } else if (status == "todo") {
+                taskManager.changeStatus(idx, TaskStatus::Todo);
+            } else {
+                cout << "Unknown status" << endl;
+            }
+        } else {
+            cout << "Unknown command" << endl;
         }
     }
 
